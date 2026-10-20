@@ -1051,8 +1051,7 @@ namespace Styx.WoWInternals.WoWObjects
                     }
                     
                     // In party (5-man), roles are only assigned in LFG dungeons
-                    // For normal parties, return None
-                    return WoWPartyMember.GroupRole.None;
+                    return ParseLFGRole(WoWPartyMember.GetLfgRole("player"));
                 }
                 catch (Exception ex)
                 {

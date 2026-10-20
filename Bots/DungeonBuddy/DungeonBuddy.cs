@@ -1182,7 +1182,7 @@ namespace Bots.DungeonBuddy
                         }),
                         new Action(ctx =>
                         {
-                            Lua.DoString("for n=0,4 do if UnitGroupRolesAssigned('party'..n) == 'TANK' then PromoteToLeader('party'..n) end end");
+                            Lua.DoString("for n=0,4 do if UnitGroupRolesAssigned('party'..n) then PromoteToLeader('party'..n) end end");
                             return RunStatus.Success;
                         })
                     )
