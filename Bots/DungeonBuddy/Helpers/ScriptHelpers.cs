@@ -1691,7 +1691,7 @@ namespace Bots.DungeonBuddy.Helpers
                 var player = member.ToPlayer();
                 if (player == null) continue;
 
-                string roleStr = WoWPartyMember.GetLfgRole(player.Name);
+                string roleStr = WoWPartyMember.GetLfgRole(member.UnitId);
 
                 var playerRole = roleStr switch
                 {
