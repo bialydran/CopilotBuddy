@@ -234,6 +234,12 @@ namespace Styx.WoWInternals
                         _cachedRaidMembers.Add(member);
                 }
 
+                if (numRaid == 0 && NumPartyMembers > 0)
+                {
+                    _cachedRaidMembers.Add(new WoWPartyMember("player", 0, false));
+                    _cachedRaidMembers.AddRange(PartyMembers);
+                }
+
                 return _cachedRaidMembers;
             }
         }
