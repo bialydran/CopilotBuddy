@@ -79,7 +79,7 @@ namespace Bots.DungeonBuddy
         private readonly WaitTimer _corpseRunWaitTimer = new WaitTimer(TimeSpan.FromMinutes(2.0));
         private WoWUnit? _corpseSpiritHealer;
         private readonly WaitTimer _pathValidationRefreshTimer = new WaitTimer(TimeSpan.FromSeconds(2.0));
-        private dynamic? _cachedBossPath;
+        private WoWPoint[]? _cachedBossPath;
         private bool _soloFarmResetInstancesPending;
         private WoWPoint _outsideFlyPoint = WoWPoint.Zero;
         private readonly List<uint> _healthstoneEntries = new List<uint> { 51999U, 52000U, 52001U, 52002U, 52003U, 52004U, 52005U, 67248U, 67250U };
@@ -2789,19 +2789,18 @@ namespace Bots.DungeonBuddy
 
             if (_cachedBossPath == null || _pathValidationRefreshTimer.IsFinished)
             {
-                dynamic navProvider = Navigator.NavigationProvider;
-                _cachedBossPath = navProvider.Nav.FindPath(StyxWoW.Me.Location, BossManager.CurrentBoss.Location);
+                _cachedBossPath = Navigator.GeneratePath(StyxWoW.Me.Location, BossManager.CurrentBoss.Location);
                 _pathValidationRefreshTimer.Reset();
             }
 
-            if (_cachedBossPath == null || !_cachedBossPath.Succeeded)
+            if (_cachedBossPath == null || _cachedBossPath.Length == 0)
                 return false;
 
             WoWPoint memberLocation = player.Location;
-            for (int i = 1; i < _cachedBossPath.Points.Length; i++)
+            for (int i = 1; i < _cachedBossPath.Length; i++)
             {
-                WoWPoint segmentStart = _cachedBossPath.Points[i - 1];
-                WoWPoint segmentEnd = _cachedBossPath.Points[i];
+                WoWPoint segmentStart = _cachedBossPath[i - 1];
+                WoWPoint segmentEnd = _cachedBossPath[i];
                 if (memberLocation.GetNearestPointOnSegment(segmentStart, segmentEnd).DistanceSqr(memberLocation) <= 900f)
                     return true;
             }
