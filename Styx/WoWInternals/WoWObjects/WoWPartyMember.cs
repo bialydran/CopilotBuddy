@@ -379,8 +379,7 @@ namespace Styx.WoWInternals.WoWObjects
         {
             get
             {
-                // UnitGroupRolesAssigned returns "TANK", "HEALER", "DAMAGER", or "NONE"
-                var lfgRole = Lua.GetReturnVal<string>($"return UnitGroupRolesAssigned('{_unitId}')", 0);
+                var lfgRole = GetLfgRole(_unitId);
                 switch (lfgRole)
                 {
                     case "TANK":    return GroupRole.Tank;
@@ -394,6 +393,12 @@ namespace Styx.WoWInternals.WoWObjects
 
                 return GroupRole.None;
             }
+        }
+
+        public static string GetLfgRole(string unit)
+        {
+            return Lua.GetReturnVal<string>(
+                $"local t, h, d = UnitGroupRolesAssigned('{unit}'); return t and 'TANK' or h and 'HEALER' or d and 'DAMAGER' or 'NONE'", 0) ?? "NONE";
         }
 
         /// <summary>

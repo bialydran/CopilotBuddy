@@ -1691,9 +1691,8 @@ namespace Bots.DungeonBuddy.Helpers
                 var player = member.ToPlayer();
                 if (player == null) continue;
 
-                string roleStr = Lua.GetReturnVal<string>(
-                    $"return UnitGroupRolesAssigned('{player.Name}')", 0);
-                
+                string roleStr = WoWPartyMember.GetLfgRole(member.UnitId);
+
                 var playerRole = roleStr switch
                 {
                     "TANK" => PartyRole.Tank,

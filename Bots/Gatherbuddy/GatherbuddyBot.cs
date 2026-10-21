@@ -95,6 +95,9 @@ namespace Bots.Gatherbuddy
         // WoD: hashSet_0
         private static readonly HashSet<WoWPoint> _validatedNodePositions = new HashSet<WoWPoint>();
 
+        private static readonly Dictionary<ulong, (float? Distance, DateTime Expires)> _pathDistanceCache = new Dictionary<ulong, (float? Distance, DateTime Expires)>();
+        private static readonly TimeSpan PathDistanceCacheDuration = TimeSpan.FromSeconds(3);
+
         // GameObject entry IDs that are never gathered: traps, cages, misc objects.
         // WoD: list_6
         internal static readonly List<uint> _avoidList = new List<uint>
@@ -166,6 +169,7 @@ namespace Bots.Gatherbuddy
 
             NodeCollectionCount.Clear();
             _validatedNodePositions.Clear();
+            _pathDistanceCache.Clear();
             _combatSuppressed         = false;
             _rezSicknessTakeoffDone   = false;
             _approachPoint            = WoWPoint.Zero;
@@ -1353,10 +1357,17 @@ namespace Bots.Gatherbuddy
             if (Flightor.CanFly)
                 return; // Flying — straight-line order is fine.
 
+            DateTime now = DateTime.UtcNow;
             foreach (Targeting.TargetPriority tp in targets)
             {
                 tp.Score = 0.0;
-                float? dist = Navigator.PathDistance(StyxWoW.Me.Location, tp.Object.Location, float.MaxValue);
+                ulong guid = tp.Object.Guid;
+                if (!_pathDistanceCache.TryGetValue(guid, out var cached) || cached.Expires <= now)
+                {
+                    cached = (Navigator.PathDistance(StyxWoW.Me.Location, tp.Object.Location, float.MaxValue), now + PathDistanceCacheDuration);
+                    _pathDistanceCache[guid] = cached;
+                }
+                float? dist = cached.Distance;
                 tp.Score = dist.HasValue ? -(double)dist.Value : -(double)tp.Object.Distance;
             }
         }
