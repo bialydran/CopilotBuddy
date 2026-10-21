@@ -48,9 +48,11 @@ namespace Bots.DungeonBuddy
 
             /// <summary>
             /// Best-effort world location: uses live ObjectManager unit if in range,
-            /// otherwise WoWPoint.Zero. Callers should guard for Zero.
+            /// otherwise the profile X/Y/Z for this entry, otherwise WoWPoint.Zero. Callers should guard for Zero.
             /// </summary>
-            public WoWPoint Location => ToWoWUnit()?.Location ?? WoWPoint.Zero;
+            public WoWPoint Location => ToWoWUnit()?.Location
+                ?? ProfileManager.CurrentProfile?.BossEncounters.FirstOrDefault(b => b.Entry == Entry)?.Location
+                ?? WoWPoint.Zero;
 
             /// <summary>
             /// Marks this boss as dead. Called by dungeon scripts (HB Boss.MarkAsDead() parity).
